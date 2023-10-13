@@ -19,5 +19,8 @@ module.exports = {
     ecmaVersion: "latest",
     sourceType: "module",
   },
-  rules: {},
+  rules: {
+    "import/first": "off",
+    "no-param-reassign": "off",
+  },
 };
