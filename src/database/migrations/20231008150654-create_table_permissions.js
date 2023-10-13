@@ -12,10 +12,17 @@ module.exports = {
       name: {
         type: Sequelize.STRING,
         allowNull: false,
+        unique: true,
       },
       description: {
         type: Sequelize.TEXT,
         allowNull: false,
+      },
+      created_at: {
+        type: Sequelize.DATE,
+      },
+      updated_at: {
+        type: Sequelize.DATE,
       },
     });
   },

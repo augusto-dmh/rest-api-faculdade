@@ -4,10 +4,12 @@ module.exports = {
     await queryInterface.addColumn("students", "course_id", {
       type: Sequelize.INTEGER,
       allowNull: false,
+      before: "created_at",
     });
     await queryInterface.addColumn("professors", "course_id", {
       type: Sequelize.INTEGER,
       allowNull: false,
+      before: "created_at",
     });
 
     await queryInterface.addConstraint("students", {
