@@ -10,7 +10,7 @@ export default class Course extends Model {
         category: {
           type: DataTypes.STRING,
         },
-        duration_sem: {
+        durationSem: {
           type: DataTypes.INTEGER,
         },
       },

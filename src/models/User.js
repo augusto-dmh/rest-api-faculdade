@@ -8,6 +8,7 @@ export default class User extends Model {
         id: {
           type: DataTypes.UUID,
           defaultValue: DataTypes.UUIDV4,
+          primaryKey: true,
         },
         username: {
           type: DataTypes.STRING,

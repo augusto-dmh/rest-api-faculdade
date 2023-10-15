@@ -7,6 +7,7 @@ export default class Professor extends Model {
         id: {
           type: DataTypes.UUID,
           defaultValue: DataTypes.UUIDV4,
+          primaryKey: true,
         },
         rd: {
           type: DataTypes.STRING,

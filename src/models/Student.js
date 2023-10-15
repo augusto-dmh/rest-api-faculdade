@@ -7,6 +7,7 @@ export default class Student extends Model {
         id: {
           type: DataTypes.UUID,
           defaultValue: DataTypes.UUIDV4,
+          primaryKey: true,
         },
         ra: {
           type: DataTypes.INTEGER,
