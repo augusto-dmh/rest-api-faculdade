@@ -13,6 +13,9 @@ export default class Course extends Model {
         durationSem: {
           type: DataTypes.INTEGER,
         },
+        degree: {
+          type: DataTypes.STRING,
+        },
       },
       { sequelize },
     );
@@ -23,5 +26,6 @@ export default class Course extends Model {
   static associate(models) {
     this.hasMany(models.Student, { foreignKey: "course_id" });
     this.hasMany(models.Professor, { foreignKey: "course_id" });
+    this.belongsToMany(models.Modality, { through: models.CourseModality });
   }
 }
