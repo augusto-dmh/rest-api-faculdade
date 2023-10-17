@@ -31,7 +31,15 @@ const store = async (req, res) => {
 
 const index = async (req, res) => {
   try {
-    const courses = await Course.findAll();
+    const { name = "", category = "", durationSem = "", degree = "" } = req.query;
+    const userFilters = { name, category, durationSem, degree };
+
+    Object.keys(userFilters).forEach((filter) => {
+      if (!userFilters[filter]) delete userFilters[filter];
+    });
+
+    let courses = await Course.findAll();
+    if (userFilters) courses = await Course.findAll({ where: { ...userFilters } });
 
     return res.status(200).json(courses);
   } catch (e) {
