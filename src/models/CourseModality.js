@@ -13,7 +13,7 @@ export default class CourseModality extends Model {
           allowNull: false,
         },
       },
-      { sequelize },
+      { sequelize, timestamps: false },
     );
 
     return this;

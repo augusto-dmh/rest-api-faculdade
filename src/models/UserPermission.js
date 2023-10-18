@@ -13,7 +13,7 @@ export default class UserPermission extends Model {
           allowNull: false,
         },
       },
-      { sequelize },
+      { sequelize, timestamps: false },
     );
   }
 }
