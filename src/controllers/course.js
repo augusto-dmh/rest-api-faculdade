@@ -1,25 +1,38 @@
+import queryString from "query-string";
 import Course from "../models/Course";
+import Modality from "../models/Modality";
+import CourseModality from "../models/CourseModality";
 
 const store = async (req, res) => {
   const keysExpected = ["name", "category", "durationSem", "degree"];
+  req.query = queryString.parse(req.originalUrl.split("?")[1], { arrayFormat: "comma" });
   const errors = [];
 
   validateReqBody(req.body, keysExpected, errors);
+  validateReqQuery(req.query, errors, "modality");
 
   if (errors.length > 0) return res.status(400).json({ errors });
 
   const { name, category, durationSem, degree } = req.body;
+  let { modality } = req.query;
+
+  if (!Array.isArray(modality)) modality = [modality]; // to guarantee that even if just one modality is sent on query params, it'll be treated as an array
 
   validateName(name, errors);
   validateCategory(category, errors);
   validateDurationSem(durationSem, errors);
   validateDegree(degree, errors);
+  modality.forEach(async (m) => validateRowExistenceByName(Modality, m, errors));
   await alreadyExists(name, degree, errors);
 
   if (errors.length > 0) return res.status(400).json({ errors });
 
   try {
-    const course = await Course.create(req.body);
+    const course = await Course.create(req.body); // review here adsasdasasddadsa
+    modality.forEach(async (m) => {
+      const modalityC = Modality.findOne({ where: { name: m } });
+      await CourseModality.create({ course_id: course.id, modality_id: modalityC.id });
+    });
 
     return res.status(200).json(course);
   } catch (e) {
@@ -38,8 +51,16 @@ const index = async (req, res) => {
       if (!userFilters[filter]) delete userFilters[filter];
     });
 
-    let courses = await Course.findAll();
-    if (userFilters) courses = await Course.findAll({ where: { ...userFilters } });
+    let courses = await Course.findAll({
+      include: { model: Modality, attributes: ["name"], through: { attributes: [] } },
+    });
+
+    if (userFilters) {
+      courses = await Course.findAll({
+        where: { ...userFilters },
+        include: { model: Modality, attributes: ["name"], through: { attributes: [] } },
+      });
+    }
 
     return res.status(200).json(courses);
   } catch (e) {
@@ -139,6 +160,20 @@ function validateReqBody(reqBody, keysExpected, errors) {
   });
 }
 
+function validateReqQuery(reqQuery, errors, ...keysExpected) {
+  const reqQueryKeys = Object.keys(reqQuery);
+  const missingKeys = keysExpected.filter((key) => !reqQueryKeys.includes(key));
+
+  if (!missingKeys) return;
+
+  missingKeys.forEach((key) => {
+    errors.push({
+      title: "Missing data",
+      message: `'${key}' was not informed.`,
+    });
+  });
+}
+
 function validateName(name, errors) {
   if (typeof name !== "string") {
     errors.push({
@@ -187,6 +222,20 @@ function validateDegree(degree, errors) {
     errors.push({
       title: "Invalid Degree",
       message: `The degree '${degree}' is invalid.`,
+    });
+  }
+}
+
+async function validateRowExistenceByName(Model, name, errors) {
+  const row = await Model.findOne({ where: { name } });
+  const modelName = Model.toString()
+    .toLowerCase()
+    .match(/class (\w+)/)[1];
+
+  if (!row) {
+    errors.push({
+      title: "Data Not Found",
+      message: `No ${modelName} which name is '${name}' was found.`,
     });
   }
 }
