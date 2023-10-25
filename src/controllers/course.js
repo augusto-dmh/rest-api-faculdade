@@ -48,21 +48,53 @@ const store = async (req, res) => {
 
 const index = async (req, res) => {
   try {
-    const { name = "", category = "", durationSem = "", degree = "" } = req.query;
+    req.query = queryString.parse(req.originalUrl.split("?")[1], {
+      arrayFormat: "comma",
+    });
+    const { name = "", category = "", durationSem = "", degree = "", modality = "" } = req.query;
     const userFilters = { name, category, durationSem, degree };
 
     Object.keys(userFilters).forEach((filter) => {
       if (!userFilters[filter]) delete userFilters[filter];
     });
 
-    let courses = await Course.findAll({
-      include: { model: Modality, attributes: ["name"], through: { attributes: [] } },
-    });
+    let courses = {};
+    const includeBase = {
+      model: Modality,
+      as: "modalities",
+      attributes: ["name"],
+      through: { attributes: [] },
+    };
 
-    if (userFilters) {
+    if (userFilters && modality) {
       courses = await Course.findAll({
         where: { ...userFilters },
-        include: { model: Modality, attributes: ["name"], through: { attributes: [] } },
+        include: {
+          ...includeBase,
+          where: { name: modality },
+        },
+      });
+    }
+
+    if (!userFilters && !modality) {
+      courses = await Course.findAll({
+        include: { ...includeBase },
+      });
+    }
+
+    if (userFilters && !modality) {
+      courses = await Course.findAll({
+        where: { ...userFilters },
+        include: { ...includeBase },
+      });
+    }
+
+    if (!userFilters && modality) {
+      courses = await Course.findAll({
+        include: {
+          ...includeBase,
+          where: { name: modality },
+        },
       });
     }
 
