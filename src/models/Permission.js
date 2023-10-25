@@ -11,13 +11,13 @@ export default class Permission extends Model {
           type: DataTypes.TEXT,
         },
       },
-      { sequelize },
+      { sequelize, modelName: "permission" },
     );
 
     return this;
   }
 
   static associate(models) {
-    this.belongsToMany(models.User, { through: models.UserPermission });
+    this.belongsToMany(models.user, { through: models.userPermission });
   }
 }

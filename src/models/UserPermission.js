@@ -4,16 +4,16 @@ export default class UserPermission extends Model {
   static init(sequelize) {
     super.init(
       {
-        user_id: {
+        userId: {
           type: DataTypes.UUID,
           allowNull: false,
         },
-        permission_id: {
+        permissionId: {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
       },
-      { sequelize, timestamps: false },
+      { sequelize, modelName: "userPermission", timestamps: false },
     );
 
     return this;

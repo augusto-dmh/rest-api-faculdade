@@ -4,16 +4,16 @@ export default class CourseModality extends Model {
   static init(sequelize) {
     super.init(
       {
-        course_id: {
+        courseId: {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
-        modality_id: {
+        modalityId: {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
       },
-      { sequelize, timestamps: false },
+      { sequelize, modelName: "courseModality", timestamps: false },
     );
 
     return this;

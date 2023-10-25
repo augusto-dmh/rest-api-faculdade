@@ -17,7 +17,7 @@ export default class User extends Model {
           type: DataTypes.STRING,
         },
       },
-      { sequelize },
+      { sequelize, modelName: "user" },
     );
 
     this.addHook("beforeSave", async (user) => {
@@ -29,6 +29,6 @@ export default class User extends Model {
   }
 
   static associate(models) {
-    this.belongsToMany(models.Permission, { through: models.UserPermission });
+    this.belongsToMany(models.permission, { through: models.userPermission });
   }
 }

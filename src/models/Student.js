@@ -15,13 +15,13 @@ export default class Student extends Model {
         name: {
           type: DataTypes.STRING,
         },
-        last_name: {
+        lastName: {
           type: DataTypes.STRING,
         },
-        course_id: {
+        courseId: {
           type: DataTypes.INTEGER,
         },
-        birth_date: {
+        birthDate: {
           type: DataTypes.DATE,
         },
         semester: {
@@ -31,13 +31,13 @@ export default class Student extends Model {
           type: DataTypes.STRING,
         },
       },
-      { sequelize },
+      { sequelize, modelName: "student" },
     );
 
     return this;
   }
 
   static associate(models) {
-    this.belongsTo(models.Course, { foreignKey: "course_id" });
+    this.belongsTo(models.course, { foreignKey: "course_id" });
   }
 }

@@ -9,13 +9,16 @@ export default class Modality extends Model {
           allowNull: false,
         },
       },
-      { sequelize },
+      { sequelize, modelName: "modality" },
     );
 
     return this;
   }
 
   static associate(models) {
-    this.belongsToMany(models.Course, { through: models.CourseModality });
+    this.belongsToMany(models.course, {
+      as: "courses",
+      through: models.courseModality,
+    });
   }
 }

@@ -17,15 +17,18 @@ export default class Course extends Model {
           type: DataTypes.STRING,
         },
       },
-      { sequelize },
+      { sequelize, modelName: "course" },
     );
 
     return this;
   }
 
   static associate(models) {
-    this.hasMany(models.Student, { foreignKey: "course_id" });
-    this.hasMany(models.Professor, { foreignKey: "course_id" });
-    this.belongsToMany(models.Modality, { through: models.CourseModality });
+    this.hasMany(models.student, { foreignKey: "course_id" });
+    this.hasMany(models.professor, { foreignKey: "course_id" });
+    this.belongsToMany(models.modality, {
+      as: "modalities",
+      through: models.courseModality,
+    });
   }
 }
