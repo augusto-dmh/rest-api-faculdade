@@ -14,7 +14,7 @@ const store = async (req, res) => {
   if (errors.length > 0) return res.status(400).json({ errors });
 
   const { name, category, durationSem, degree } = req.body;
-  let { modality } = req.query;
+  let { modality = "" } = req.query;
 
   if (!Array.isArray(modality)) modality = [modality]; // to guarantee that even if just one modality is sent on query params, it'll be treated as an array
 
@@ -162,7 +162,15 @@ function validateReqBody(reqBody, keysExpected, errors) {
 
 function validateReqQuery(reqQuery, errors, ...keysExpected) {
   const reqQueryKeys = Object.keys(reqQuery);
+  const reqQueryValues = Object.values(reqQuery);
   const missingKeys = keysExpected.filter((key) => !reqQueryKeys.includes(key));
+
+  if (reqQueryValues.includes(null)) {
+    errors.push({
+      title: "Invalid Input Data",
+      message: "Null values are not allowed.",
+    });
+  }
 
   if (!missingKeys) return;
 
