@@ -22,17 +22,21 @@ const store = async (req, res) => {
   validateCategory(category, errors);
   validateDurationSem(durationSem, errors);
   validateDegree(degree, errors);
-  modality.forEach(async (m) => validateRowExistenceByName(Modality, m, errors));
+  for (const m of modality) await validateRowExistenceByName(Modality, m, errors);
   await alreadyExists(name, degree, errors);
 
   if (errors.length > 0) return res.status(400).json({ errors });
 
   try {
     const course = await Course.create(req.body); // review here adsasdasasddadsa
-    modality.forEach(async (m) => {
-      const modalityC = Modality.findOne({ where: { name: m } });
-      await CourseModality.create({ course_id: course.id, modality_id: modalityC.id });
-    });
+    const course = await Course.create(req.body);
+    for (const m of modality) {
+      const modalityC = await Modality.findOne({ where: { name: m } });
+
+      await CourseModality.create({
+        courseId: course.id,
+        modalityId: modalityC.id,
+      });
 
     return res.status(200).json(course);
   } catch (e) {
