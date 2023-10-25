@@ -125,11 +125,22 @@ const update = async (req, res) => {
   const errors = [];
 
   const { name = "", category = "", durationSem = "", degree = "" } = req.body;
+  req.query = queryString.parse(req.originalUrl.split("?")[1], {
+    arrayFormat: "comma",
+  });
+  let { modality = "" } = req.query;
+
+  if (modality && !Array.isArray(modality)) modality = [modality];
 
   if (name) validateName(name, errors);
   if (category) validateCategory(category, errors);
   if (durationSem) validateDurationSem(durationSem, errors);
   if (degree) validateDegree(degree, errors);
+  if (modality) {
+    for (const m of modality) {
+      await validateRowExistenceByName(Modality, m, errors);
+    }
+  }
 
   if (errors.length > 0) return res.status(400).json({ errors });
 
@@ -144,8 +155,59 @@ const update = async (req, res) => {
   }
 
   if (errors.length > 0) return res.status(400).json({ errors });
+
+  if (modality) {
+    const availableModalities = (await Modality.findAll()).map((m) => m.name);
+
+    let courseModalities = availableModalities.map(async (m) => {
+      const courseModality = await CourseModality.findOne({
+        where: {
+          courseId: course.id,
+          modalityId: (await Modality.findOne({ where: { name: m } })).id,
+        },
+      });
+
+      if (!courseModality) return null;
+      return m;
+    });
+    courseModalities = (await Promise.all(courseModalities)).filter(Boolean);
+    if (courseModalities) {
+      // if the course is associated with no modality
+      let courseModalitiesToDelete = courseModalities.map(async (m) => {
+        const courseModality = await CourseModality.findOne({
+          where: {
+            courseId: course.id,
+            modalityId: (await Modality.findOne({ where: { name: m } })).id,
+          },
+        });
+
+        if (!modality.includes(m)) return courseModality;
+        return null;
+      });
+      courseModalitiesToDelete = (await Promise.all(courseModalitiesToDelete)).filter(Boolean);
+      for (const cM of courseModalitiesToDelete) cM.destroy();
+    }
+  }
+
   try {
     const updatedCourse = await course.update(req.body);
+
+    for (const m of modality) {
+      const mRow = await Modality.findOne({ where: { name: m } });
+      const courseModality = await CourseModality.findOne({
+        where: {
+          courseId: course.id,
+          modalityId: mRow.id,
+        },
+      });
+
+      if (!courseModality) {
+        await CourseModality.create({
+          courseId: course.id,
+          modalityId: mRow.id,
+        });
+      }
+    }
 
     return res.status(200).json(updatedCourse);
   } catch (e) {
