@@ -22,5 +22,8 @@ module.exports = {
   rules: {
     "import/first": "off",
     "no-param-reassign": "off",
+    "no-use-before-define": "off",
+    "no-restricted-syntax": "off",
+    "no-await-in-loop": "off",
   },
 };
