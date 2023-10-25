@@ -37,6 +37,7 @@ const store = async (req, res) => {
         courseId: course.id,
         modalityId: modalityC.id,
       });
+    }
 
     return res.status(200).json(course);
   } catch (e) {

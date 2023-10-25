@@ -15,5 +15,7 @@ export default class UserPermission extends Model {
       },
       { sequelize, timestamps: false },
     );
+
+    return this;
   }
 }
