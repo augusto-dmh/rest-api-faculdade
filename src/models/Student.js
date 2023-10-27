@@ -10,7 +10,7 @@ export default class Student extends Model {
           primaryKey: true,
         },
         ra: {
-          type: DataTypes.INTEGER,
+          type: DataTypes.STRING,
         },
         name: {
           type: DataTypes.STRING,
