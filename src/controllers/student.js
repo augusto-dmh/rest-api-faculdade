@@ -1,5 +1,6 @@
 import { DateTime } from "luxon";
 import CPF from "cpf";
+import queryString from "query-string";
 import Student from "../models/Student";
 import Course from "../models/Course";
 
@@ -27,7 +28,58 @@ const store = async (req, res) => {
   res.json({ errors });
 };
 
-const index = async (req, res) => {};
+const index = async (req, res) => {
+  const errors = [];
+
+  req.query = queryString.parse(req.originalUrl.split("?")[1], {
+    arrayFormat: "comma",
+  });
+
+  let { courseId, semester } = req.query;
+
+  courseId = ensureArray(courseId);
+  semester = ensureArray(semester);
+
+  if (courseId) {
+    for (const cId of courseId) {
+      await validateRowExistence(cId, "id", Course, errors);
+    }
+  }
+
+  if (semester) {
+    for (const s of semester) {
+      validateSemester(s, errors);
+    }
+  }
+
+  if (errors.length > 0) return res.status(400).json({ errors });
+
+  try {
+    let students = [];
+
+    if (!courseId && !semester) {
+      students = await Student.findAll();
+      return res.json(students);
+    }
+
+    if (courseId && !semester) {
+      students = await Student.findAll({ where: { courseId } });
+      return res.json(students);
+    }
+
+    if (!courseId && semester) {
+      students = await Student.findAll({ where: { semester } });
+      return res.json(students);
+    }
+
+    students = await Student.findAll({ where: { courseId, semester } });
+    return res.json(students);
+  } catch (e) {
+    return res.status(400).json({
+      errors: e.errors.map((err) => err.message),
+    });
+  }
+};
 
 const show = async (req, res) => {};
 
@@ -192,4 +244,8 @@ async function validateRowExistence(uniqueKey, uniqueKeyName, Model, errors) {
     title: "Data Not Found",
     message: `A ${modelName} which ${uniqueKeyName} is '${uniqueKey}' was not found.`,
   });
+}
+
+function ensureArray(value) {
+  return value && !Array.isArray(value) ? [value] : value;
 }
