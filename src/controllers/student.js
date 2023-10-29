@@ -79,10 +79,10 @@ function validateName(name, errors) {
     });
   }
 
-  if (!(name.length >= 5 && name.length <= 255)) {
+  if (!(name.length <= 255)) {
     errors.push({
       title: "Invalid input data",
-      message: "'name' must contain between 5 and 255 characters.",
+      message: "'name' must contain less than 255 characters.",
     });
   }
 }
@@ -115,10 +115,10 @@ function validateLastName(lastName, errors) {
     });
   }
 
-  if (lastName.length < 5 || lastName > 255) {
+  if (lastName > 255) {
     errors.push({
       title: "Invalid input data",
-      message: "'lastName' must contain between 5 and 255 characters.",
+      message: "'lastName' must contain less than 255 characters.",
     });
   }
 }

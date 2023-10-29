@@ -102,10 +102,10 @@ function validateName(name, errors) {
     });
   }
 
-  if (name.length < 5 || name.length > 255) {
+  if (name.length > 255) {
     errors.push({
       title: "Invalid Input Data",
-      message: "'name' must contain between 5 and 255 characters.",
+      message: "'name' must contain less than 255 characters.",
     });
   }
 }
