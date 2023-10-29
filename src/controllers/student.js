@@ -106,17 +106,10 @@ function validateRequestedKeys(requestedKeys, errors) {
 }
 
 async function validateRa(ra, errors) {
-  if (typeof ra !== "string") {
+  if (typeof ra !== "string" || !Number(ra) || ra.length !== 10) {
     return errors.push({
       title: "Invalid Input Data",
-      message: `'ra' must be a string`,
-    });
-  }
-
-  if (Number(ra) && ra.length !== 10) {
-    errors.push({
-      title: "Invalid Input Data",
-      message: `'ra' must contain 10 digits`,
+      message: `'ra' must be a string containing 10 digits.`,
     });
   }
 
@@ -205,6 +198,8 @@ function validateBirthDate(birthDate, errors) {
 }
 
 function validateSemester(semester, errors) {
+  semester = Number(semester);
+
   if (!Number.isInteger(semester)) {
     return errors.push({
       title: "Invalid Input Data",
