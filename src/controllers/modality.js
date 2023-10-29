@@ -3,8 +3,9 @@ import Modality from "../models/Modality";
 const store = async (req, res) => {
   const errors = [];
   const { name = "" } = req.body;
+  const keysExpected = { name };
 
-  validateReqDataExistence(errors, name);
+  validateReqBodyExistence(errors, keysExpected);
   if (errors.length > 0) return res.status(400).json({ errors });
 
   validateName(name, errors);
@@ -53,8 +54,9 @@ const update = async (req, res) => {
   const errors = [];
   const { id = "" } = req.params;
   const { name = "" } = req.body;
+  const keysExpected = { name };
 
-  validateReqDataExistence(errors, id);
+  validateReqBodyExistence(errors, keysExpected);
   if (errors.length > 0) return res.status(400).json({ errors });
 
   await validateRowExistenceById(id, errors);
@@ -121,12 +123,15 @@ async function validateRowExistenceById(id, errors) {
   }
 }
 
-function validateReqDataExistence(errors, ...reqData) {
-  reqData.forEach((data) => {
-    if (!data) {
+function validateReqBodyExistence(errors, keysExpected) {
+  const keys = Object.keys(keysExpected);
+  const keysValues = Object.values(keysExpected);
+
+  keysValues.forEach((keyValue, i) => {
+    if (!keyValue) {
       errors.push({
         title: "Missing Input Data",
-        message: `'${data}' was not informed.`,
+        message: `'${keys[i]}' was not informed.`,
       });
     }
   });
