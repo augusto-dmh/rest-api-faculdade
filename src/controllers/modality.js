@@ -2,7 +2,7 @@ import Modality from "../models/Modality";
 
 const store = async (req, res) => {
   const errors = [];
-  const { name = "" } = req.body;
+  const { name } = req.body;
   const keysExpected = { name };
 
   validateReqBodyExistence(errors, keysExpected);
@@ -52,8 +52,8 @@ const show = async (req, res) => {
 
 const update = async (req, res) => {
   const errors = [];
-  const { id = "" } = req.params;
-  const { name = "" } = req.body;
+  const { id } = req.params;
+  const { name } = req.body;
   const keysExpected = { name };
 
   validateReqBodyExistence(errors, keysExpected);
@@ -77,7 +77,7 @@ const update = async (req, res) => {
 
 const destroy = async (req, res) => {
   const errors = [];
-  const { id = "" } = req.params;
+  const { id } = req.params;
 
   await validateRowExistenceById(id, errors);
   if (errors.length > 0) return res.status(400).json({ errors });

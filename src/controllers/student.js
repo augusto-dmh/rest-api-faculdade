@@ -6,15 +6,7 @@ import Course from "../models/Course";
 
 const store = async (req, res) => {
   const errors = [];
-  const {
-    ra = "",
-    name = "",
-    lastName = "",
-    courseId = "",
-    birthDate = "",
-    semester = "",
-    cpf = "",
-  } = req.body;
+  const { ra, name, lastName, courseId, birthDate, semester, cpf } = req.body;
   const requestedKeys = { ra, name, lastName, courseId, birthDate, semester, cpf };
 
   validateRequestedKeys(requestedKeys, errors);

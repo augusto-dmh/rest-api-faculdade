@@ -52,7 +52,7 @@ const index = async (req, res) => {
     req.query = queryString.parse(req.originalUrl.split("?")[1], {
       arrayFormat: "comma",
     });
-    const { name = "", category = "", durationSem = "", degree = "", modality = "" } = req.query;
+    const { name, category, durationSem, degree, modality } = req.query;
     const userFilters = { name, category, durationSem, degree };
 
     Object.keys(userFilters).forEach((filter) => {
