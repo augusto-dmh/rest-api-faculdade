@@ -18,14 +18,28 @@ const store = async (req, res) => {
   const requestedKeys = { ra, name, lastName, courseId, birthDate, semester, cpf };
 
   validateRequestedKeys(requestedKeys, errors);
+
+  if (errors.length > 0) return res.status(400).json({ errors });
+
   await validateRa(ra, errors);
-  validateName(lastName, errors);
+  validateName(name, errors);
   validateLastName(lastName, errors);
   await validateRowExistence(courseId, "id", Course, errors);
   validateBirthDate(birthDate, errors);
   await validateCpf(cpf, errors);
   validateSemester(semester, errors);
-  res.json({ errors });
+
+  if (errors.length > 0) return res.status(400).json({ errors });
+
+  try {
+    const student = await Student.create(req.body);
+
+    return res.json(student);
+  } catch (e) {
+    return res.status(400).json({
+      errors: e.errors.map((err) => err.message),
+    });
+  }
 };
 
 const index = async (req, res) => {
