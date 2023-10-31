@@ -14,7 +14,7 @@ function studentsGenerator() {
     const birth_date = DateTime.fromJSDate(
       faker.date.birthdate({ min: 14, max: 30, mode: "age" }),
     ).toFormat("yyyy-MM-dd");
-    const semester = faker.number.int({ min: 4, max: 10 });
+    const semester = faker.number.int({ min: 1, max: 10 });
     const cpf = CPF.generate(false);
     const created_at = new Date();
     const updated_at = new Date();

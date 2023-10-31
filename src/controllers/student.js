@@ -274,10 +274,10 @@ function validateSemester(semester, errors) {
     });
   }
 
-  if (semester < 4 || semester > 10) {
+  if (semester < 1 || semester > 10) {
     errors.push({
       title: "Invalid Input Data",
-      message: `'semester' must be between 4 and 10`,
+      message: `'semester' must be between 1 and 10.`,
     });
   }
 }
