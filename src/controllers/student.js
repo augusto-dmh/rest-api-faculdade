@@ -49,16 +49,10 @@ const index = async (req, res) => {
     arrayFormat: "comma",
   });
 
-  let { courseId, semester } = req.query;
+  let { course, semester } = req.query;
 
-  courseId = ensureArray(courseId);
+  course = ensureArray(course);
   semester = ensureArray(semester);
-
-  if (courseId) {
-    for (const cId of courseId) {
-      await validateRowExistence(cId, "id", Course, errors);
-    }
-  }
 
   if (semester) {
     for (const s of semester) {
@@ -71,22 +65,36 @@ const index = async (req, res) => {
   try {
     let students = [];
 
-    if (!courseId && !semester) {
+    if (!course && !semester) {
       students = await Student.findAll();
       return res.json(students);
     }
 
-    if (courseId && !semester) {
-      students = await Student.findAll({ where: { courseId } });
+    if (course && !semester) {
+      const coursesIds = [];
+
+      for (const c of course) {
+        const courseId = (await Course.findOne({ where: { name: c } })).id;
+        if (courseId) coursesIds.push(courseId);
+      }
+
+      students = await Student.findAll({ where: { courseId: coursesIds } });
       return res.json(students);
     }
 
-    if (!courseId && semester) {
+    if (!course && semester) {
       students = await Student.findAll({ where: { semester } });
       return res.json(students);
     }
 
-    students = await Student.findAll({ where: { courseId, semester } });
+    const coursesIds = [];
+
+    for (const c of course) {
+      const courseId = (await Course.findOne({ where: { name: c } })).id;
+      if (courseId) coursesIds.push(courseId);
+    }
+
+    students = await Student.findAll({ where: { courseId: coursesIds, semester } });
     return res.json(students);
   } catch (e) {
     return res.status(400).json({
