@@ -103,7 +103,25 @@ const index = async (req, res) => {
   }
 };
 
-const show = async (req, res) => {};
+const show = async (req, res) => {
+  const errors = [];
+  const { ra } = req.params;
+
+  await validateRowExistence(ra, "ra", Student, errors);
+
+  if (errors.length > 0) return res.status(400).json({ errors });
+
+  try {
+    const student = await Student.findOne({ where: { ra } });
+
+    return res.json(student);
+  } catch (e) {
+    return res.status(400).json({
+      errors: e.errors.map((err) => err.message),
+    });
+  }
+};
+
 
 const update = async (req, res) => {};
 
