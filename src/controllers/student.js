@@ -122,8 +122,35 @@ const show = async (req, res) => {
   }
 };
 
+const update = async (req, res) => {
+  const errors = [];
+  const { ra } = req.params;
 
-const update = async (req, res) => {};
+  await validateRowExistence(ra, "ra", Student, errors);
+
+  if (errors.length > 0) return res.status(400).json({ errors });
+
+  if (req.body.ra) await validateRa(req.body.ra, errors);
+  if (req.body.name) validateName(req.body.name, errors);
+  if (req.body.lastName) validateLastName(req.body.lastName, errors);
+  if (req.body.courseId) await validateRowExistence(req.body.courseId, "id", Course, errors);
+  if (req.body.birthDate) validateBirthDate(req.body.birthDate, errors);
+  if (req.body.semester) validateSemester(req.body.semester, errors);
+  if (req.body.cpf) await validateCpf(req.body.cpf, errors);
+
+  if (errors.length > 0) return res.status(400).json({ errors });
+
+  try {
+    const student = await Student.findOne({ where: { ra } });
+
+    const updatedStudent = await student.update(req.body);
+    res.json(updatedStudent);
+  } catch (e) {
+    return res.status(400).json({
+      errors: e.errors.map((err) => err.message),
+    });
+  }
+};
 
 const destroy = async (req, res) => {};
 
