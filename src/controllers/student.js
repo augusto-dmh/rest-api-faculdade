@@ -1,6 +1,7 @@
 import { DateTime } from "luxon";
 import CPF from "cpf";
 import queryString from "query-string";
+import { Op } from "sequelize";
 import Student from "../models/Student";
 import Course from "../models/Course";
 
@@ -41,9 +42,12 @@ const index = async (req, res) => {
     arrayFormat: "comma",
   });
 
-  let { course, semester } = req.query;
+  let { course, category, semester } = req.query;
+
+  if (errors.length > 0) return res.status(400).json({ errors });
 
   course = ensureArray(course);
+  category = ensureArray(category);
   semester = ensureArray(semester);
 
   if (semester) {
@@ -55,19 +59,35 @@ const index = async (req, res) => {
   if (errors.length > 0) return res.status(400).json({ errors });
 
   try {
-    const whereFilters = {};
+    const whereFilters = { courseId: { [Op.in]: [] } };
     const includeFilters = [];
 
     if (course) {
       const coursesIds = [];
 
-      for (const c of course) {
-        const courseId = (await Course.findOne({ where: { name: c } })).id;
-        if (courseId) coursesIds.push(courseId);
+      for (const cName of course) {
+        const courseByName = await Course.findOne({ where: { name: cName } });
+
+        if (courseByName) coursesIds.push(courseByName.id);
       }
 
-      whereFilters.courseId = coursesIds;
-      includeFilters.push({ model: Course, attributes: ["name"] });
+      whereFilters.courseId[Op.in].push(...coursesIds);
+      includeFilters.push({ model: Course, attributes: ["name", "category"] });
+    }
+
+    if (category) {
+      const coursesIds = [];
+
+      for (const c of category) {
+        const coursesByCategory = await Course.findAll({ where: { category: c } });
+
+        if (coursesByCategory) {
+          coursesByCategory.forEach((courseBC) => coursesIds.push(courseBC.id));
+        }
+
+        whereFilters.courseId[Op.in].push(...coursesIds);
+        includeFilters.push({ model: Course, attributes: ["name", "category"] });
+      }
     }
 
     if (semester) {
