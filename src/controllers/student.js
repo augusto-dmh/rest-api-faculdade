@@ -55,14 +55,10 @@ const index = async (req, res) => {
   if (errors.length > 0) return res.status(400).json({ errors });
 
   try {
-    let students = [];
+    const whereFilters = {};
+    const includeFilters = [];
 
-    if (!course && !semester) {
-      students = await Student.findAll();
-      return res.json(students);
-    }
-
-    if (course && !semester) {
+    if (course) {
       const coursesIds = [];
 
       for (const c of course) {
@@ -70,23 +66,18 @@ const index = async (req, res) => {
         if (courseId) coursesIds.push(courseId);
       }
 
-      students = await Student.findAll({ where: { courseId: coursesIds } });
-      return res.json(students);
+      whereFilters.courseId = coursesIds;
+      includeFilters.push({ model: Course, attributes: ["name"] });
     }
 
-    if (!course && semester) {
-      students = await Student.findAll({ where: { semester } });
-      return res.json(students);
+    if (semester) {
+      whereFilters.semester = semester;
     }
 
-    const coursesIds = [];
-
-    for (const c of course) {
-      const courseId = (await Course.findOne({ where: { name: c } })).id;
-      if (courseId) coursesIds.push(courseId);
-    }
-
-    students = await Student.findAll({ where: { courseId: coursesIds, semester } });
+    const students = await Student.findAll({
+      where: whereFilters,
+      include: includeFilters,
+    });
     return res.json(students);
   } catch (e) {
     return res.status(400).json({
