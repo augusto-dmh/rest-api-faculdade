@@ -24,9 +24,6 @@ export default class Professor extends Model {
         birthDate: {
           type: DataTypes.STRING,
         },
-        semester: {
-          type: DataTypes.INTEGER,
-        },
         cpf: {
           type: DataTypes.STRING,
         },
