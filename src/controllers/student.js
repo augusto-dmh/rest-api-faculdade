@@ -24,6 +24,8 @@ const store = async (req, res) => {
 
   if (errors.length > 0) return res.status(400).json({ errors });
 
+  req.body.birthDate = DateTime.fromFormat(birthDate, "dd-MM-yyyy").toFormat("yyyy-MM-dd");
+
   try {
     const student = await Student.create(req.body);
 
