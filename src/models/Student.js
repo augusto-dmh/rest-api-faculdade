@@ -38,6 +38,6 @@ export default class Student extends Model {
   }
 
   static associate(models) {
-    this.belongsTo(models.course, { foreignKey: "course_id" });
+    this.belongsTo(models.course, { foreignKey: "courseId" });
   }
 }

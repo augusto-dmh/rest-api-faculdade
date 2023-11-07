@@ -24,8 +24,8 @@ export default class Course extends Model {
   }
 
   static associate(models) {
-    this.hasMany(models.student, { foreignKey: "course_id" });
-    this.hasMany(models.professor, { foreignKey: "course_id" });
+    this.hasMany(models.student, { foreignKey: "courseId" });
+    this.hasMany(models.professor, { foreignKey: "courseId" });
     this.belongsToMany(models.modality, {
       as: "modalities",
       through: models.courseModality,

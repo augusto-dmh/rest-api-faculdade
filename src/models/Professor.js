@@ -35,6 +35,6 @@ export default class Professor extends Model {
   }
 
   static associate(models) {
-    this.belongsTo(models.course, { foreignKey: "course_id" });
+    this.belongsTo(models.course, { foreignKey: "courseId" });
   }
 }
