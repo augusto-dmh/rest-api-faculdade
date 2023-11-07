@@ -8,9 +8,7 @@ module.exports = {
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
   define: {
-    timestamps: true,
     underscored: true,
-    underscoredAll: true,
   },
   dialectOptions: {
     timezone: "America/Sao_Paulo",
