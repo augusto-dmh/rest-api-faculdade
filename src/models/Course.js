@@ -29,6 +29,7 @@ export default class Course extends Model {
     this.belongsToMany(models.modality, {
       as: "modalities",
       through: models.courseModality,
+      foreignKey: "modalityId",
     });
   }
 }

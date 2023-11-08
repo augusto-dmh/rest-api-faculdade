@@ -29,6 +29,9 @@ export default class User extends Model {
   }
 
   static associate(models) {
-    this.belongsToMany(models.permission, { through: models.userPermission });
+    this.belongsToMany(models.permission, {
+      through: models.userPermission,
+      foreignKey: "permissionId",
+    });
   }
 }
