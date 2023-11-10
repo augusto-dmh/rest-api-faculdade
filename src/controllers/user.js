@@ -89,6 +89,27 @@ const show = async (req, res) => {
   }
 };
 
+const update = async (req, res) => {
+  const errors = [];
+
+  const { username, password } = req.body;
+  const input = { username, password };
+
+  await validateInput(input, false, errors);
+
+  if (errors.length) return res.status(400).json({ errors });
+
+  try {
+    const user = await User.findOne({ where: { username: req.params.username } });
+    await user.update({ ...input });
+
+    return res.json(user);
+  } catch (e) {
+    return res.status(400).json({
+      errors: e.errors.map((err) => err.message),
+    });
+  }
+};
 
 const destroy = async (req, res) => {};
 
