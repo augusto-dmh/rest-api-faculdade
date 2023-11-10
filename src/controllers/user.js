@@ -13,7 +13,7 @@ const store = async (req, res) => {
 
   const input = { username, password, permission };
 
-  await validateInput(input, errors);
+  await validateInput(input, true, errors);
 
   if (errors.length) return res.status(400).json({ errors });
 
@@ -94,25 +94,39 @@ const destroy = async (req, res) => {};
 
 export default { store, index, show, update, destroy };
 
-async function validateInput(input, errors) {
+/* isRequired = the input is required (has only required data -> store)
+or optional (has only optional data -> update) */
+async function validateInput(input, isRequired, errors) {
   const inputKeys = Object.keys(input);
   const inputValues = Object.values(input);
 
-  inputValues.forEach((value, i) => {
-    if (!value)
-      errors.push({
-        title: "Missing Data",
-        message: `'${inputKeys[i]}' was not informed.`,
-      });
-  });
+  if (isRequired) {
+    inputValues.forEach((value, i) => {
+      if (!value)
+        errors.push({
+          title: "Missing Data",
+          message: `'${inputKeys[i]}' was not informed.`,
+        });
+    });
 
-  if (errors.length) return;
+    await Promise.all(
+      inputKeys.map(async (key, i) => {
+        if (key === "username") await validateUsername(inputValues[i], errors);
+        if (key === "password") validatePassword(inputValues[i], errors);
+        if (key === "permission") {
+          await validatePermission(inputValues[i], errors);
+        }
+      }),
+    );
+
+    if (errors.length) return;
+  }
 
   await Promise.all(
     inputKeys.map(async (key, i) => {
-      if (key === "username") validateUsername(inputValues[i], errors);
-      if (key === "password") validatePassword(inputValues[i], errors);
-      if (key === "permission") await validatePermission(inputValues[i], errors);
+      if (key === "username" && inputValues[i]) await validateUsername(inputValues[i], errors);
+      if (key === "password" && inputValues[i]) validatePassword(inputValues[i], errors);
+      if (key === "permission" && inputValues[i]) await validatePermission(inputValues[i], errors);
     }),
   );
 }
