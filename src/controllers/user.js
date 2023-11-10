@@ -117,7 +117,7 @@ async function validateInput(input, errors) {
   );
 }
 
-function validateUsername(username, errors) {
+async function validateUsername(username, errors) {
   if (typeof username !== "string") {
     errors.push({
       title: "Invalid Input Data",
@@ -131,6 +131,8 @@ function validateUsername(username, errors) {
       message: "'username' must contain less than 255 characters.",
     });
   }
+
+  await validateKeyUniqueness(username, "username", User, errors);
 }
 
 function validatePassword(password, errors) {
@@ -182,6 +184,21 @@ async function validateRowExistence(uniqueKey, uniqueKeyName, Model, errors) {
     title: "Data Not Found",
     message: `A ${modelName} which ${uniqueKeyName} is '${uniqueKey}' was not found.`,
   });
+}
+
+async function validateKeyUniqueness(key, keyName, Model, errors) {
+  const row = await Model.findOne({ where: { [keyName]: key } });
+
+  if (!row) return;
+
+  const modelName = Model.name;
+
+  errors.push({
+    title: "Duplicate Entry",
+    message: `A ${modelName} which ${keyName} is '${key}' has already been registered.`,
+  });
+
+  errors.push();
 }
 
 function ensureArray(queryParam) {
