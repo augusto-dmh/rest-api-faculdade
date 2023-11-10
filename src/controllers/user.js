@@ -40,11 +40,55 @@ const store = async (req, res) => {
   }
 };
 
-const index = async (req, res) => {};
+const index = async (req, res) => {
+  const errors = [];
 
-const show = async (req, res) => {};
+  req.query = queryString.parse(req.originalUrl.split("?")[1], { arrayFormat: "comma" });
+  let { permission } = req.query;
+  permission = ensureArray(permission);
 
-const update = async (req, res) => {};
+  validatePermission(permission, errors);
+
+  if (errors.length) return res.status(400).json({ errors });
+
+  try {
+    const users = [];
+
+    for (const p of permission) {
+      const permissionId = (await Permission.findOne({ where: { name: p } })).id;
+      const usersPermissions = await UserPermission.findAll({ where: { permissionId } });
+      const usersIds = usersPermissions.map((uP) => uP.userId);
+      users.push(...(await Promise.all(usersIds.map(async (uI) => User.findByPk(uI)))));
+    }
+
+    return res.json(users);
+  } catch (e) {
+    return res.status(400).json({
+      errors: e.errors.map((err) => err.message),
+    });
+  }
+};
+
+const show = async (req, res) => {
+  const errors = [];
+
+  const { username } = req.params;
+
+  await validateRowExistence(username, "username", User, errors);
+
+  if (errors.length) return res.status(400).json({ errors });
+
+  try {
+    const user = await User.findOne({ where: { username } });
+
+    return res.json(user);
+  } catch (e) {
+    return res.status(400).json({
+      errors: e.errors.map((err) => err.message),
+    });
+  }
+};
+
 
 const destroy = async (req, res) => {};
 
