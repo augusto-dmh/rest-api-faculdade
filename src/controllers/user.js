@@ -111,7 +111,25 @@ const update = async (req, res) => {
   }
 };
 
-const destroy = async (req, res) => {};
+const destroy = async (req, res) => {
+  const errors = [];
+  const { username } = req.params;
+
+  await validateRowExistence(username, "username", User, errors);
+
+  if (errors.length) return res.status(400).json({ errors });
+
+  try {
+    const user = await User.findOne({ where: { username } });
+    await user.destroy();
+
+    return res.json(user);
+  } catch (e) {
+    return res.status(400).json({
+      errors: e.errors.map((err) => err.message),
+    });
+  }
+};
 
 export default { store, index, show, update, destroy };
 
