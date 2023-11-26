@@ -54,11 +54,10 @@ const index = async (req, res) => {
   try {
     const users = [];
 
-    for (const p of permission) {
-      const permissionId = (await Permission.findOne({ where: { name: p } })).id;
-      const usersPermissions = await UserPermission.findAll({ where: { permissionId } });
-      const usersIds = usersPermissions.map((uP) => uP.userId);
-      users.push(...(await Promise.all(usersIds.map(async (uI) => User.findByPk(uI)))));
+    for (const pName of permission) {
+      const p = await Permission.findOne({ where: { name: pName } });
+      const usersPermission = await p.getUsers({ joinTableAttributes: [] });
+      users.push(...usersPermission);
     }
 
     return res.json(users);

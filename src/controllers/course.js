@@ -157,20 +157,7 @@ const update = async (req, res) => {
   if (errors.length > 0) return res.status(400).json({ errors });
 
   if (modality) {
-    const availableModalities = (await Modality.findAll()).map((m) => m.name);
-
-    let courseModalities = availableModalities.map(async (m) => {
-      const courseModality = await CourseModality.findOne({
-        where: {
-          courseId: course.id,
-          modalityId: (await Modality.findOne({ where: { name: m } })).id,
-        },
-      });
-
-      if (!courseModality) return null;
-      return m;
-    });
-    courseModalities = (await Promise.all(courseModalities)).filter(Boolean);
+    const courseModalities = await course.getModalities();
     if (courseModalities) {
       // if the course is associated with no modality
       let courseModalitiesToDelete = courseModalities.map(async (m) => {
